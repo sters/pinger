@@ -1,9 +1,34 @@
-GO_ENV := GO111MODULE=on CGO_ENABLED=0
 
-.PHONY: init tidy test
-init: 
-	@${GO_ENV} go mod init
-tidy: 
-	@${GO_ENV} go mod tidy
-test: 
-	@${GO_ENV} CGO_ENABLED=1 go test -v -race -cover ./...
+export GOBIN := $(PWD)/bin
+export PATH := $(GOBIN):$(PATH)
+
+TOOLS=$(shell cat tools/tools.go | egrep '^\s_ '  | awk '{ print $$2 }')
+
+.PHONY: bootstrap-tools
+bootstrap-tools:
+	@echo "Installing: " $(TOOLS)
+	@go install $(TOOLS)
+
+.PHONY: run
+run:
+	go run main.go $(ARGS)
+
+.PHONY: lint
+lint: bootstrap-tools
+	$(GOBIN)/golangci-lint run -v ./...
+
+.PHONY: lint-fix
+lint-fix:
+	$(GOBIN)/golangci-lint run --fix -v ./...
+
+.PHONY: test
+test:
+	go test -v -race ./...
+
+.PHONY: cover
+cover:
+	go test -v -race -coverpkg=./... -coverprofile=coverage.txt ./...
+
+.PHONY: tidy
+tidy:
+	go mod tidy

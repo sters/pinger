@@ -12,6 +12,8 @@ import (
 )
 
 func TestWithClient(t *testing.T) {
+	t.Parallel()
+
 	h := &pingerOptions{}
 	if h.client != nil {
 		t.Errorf("already configured http client")
@@ -24,6 +26,8 @@ func TestWithClient(t *testing.T) {
 }
 
 func TestHTTPPinger(t *testing.T) {
+	t.Parallel()
+
 	testWantMethod := "GET"
 	handledEndpoint := false
 	mux := sync.Mutex{}
@@ -45,10 +49,11 @@ func TestHTTPPinger(t *testing.T) {
 		handledEndpoint = true
 	})
 	s := &http.Server{
-		Addr:    "localhost:8080",
-		Handler: handler,
+		Addr:              "localhost:8080",
+		Handler:           handler,
+		ReadHeaderTimeout: time.Second,
 	}
-	go s.ListenAndServe()
+	go func() { _ = s.ListenAndServe() }()
 	defer s.Close()
 
 	u, _ := url.Parse("http://localhost:8080/bar")

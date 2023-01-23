@@ -16,6 +16,8 @@ func (m *fakePinger) PingContext(ctx context.Context) error {
 }
 
 func TestWithInterval(t *testing.T) {
+	t.Parallel()
+
 	want := 10 * time.Second
 
 	w := &workerOptions{}
@@ -30,6 +32,8 @@ func TestWithInterval(t *testing.T) {
 }
 
 func TestWithErrorHandler(t *testing.T) {
+	t.Parallel()
+
 	w := &workerOptions{}
 	if w.errorHandler != nil {
 		t.Errorf("already configured error handler")
@@ -42,6 +46,8 @@ func TestWithErrorHandler(t *testing.T) {
 }
 
 func TestNewWorker(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name                    string
 		pingError               bool
@@ -62,7 +68,10 @@ func TestNewWorker(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			triggeredErrorHandler := false
 
 			worker := NewWorker(
@@ -71,6 +80,7 @@ func TestNewWorker(t *testing.T) {
 						if test.pingError {
 							return fmt.Errorf("dummy")
 						}
+
 						return nil
 					},
 				},

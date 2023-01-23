@@ -6,12 +6,12 @@ import (
 )
 
 type (
-	// Pinger is behavior of ping
+	// Pinger is behavior of ping.
 	Pinger interface {
 		PingContext(ctx context.Context) error
 	}
 
-	// WorkerOption use for Worker
+	// WorkerOption use for Worker.
 	WorkerOption func(*workerOptions)
 
 	errorHandler  func(error)
@@ -23,7 +23,7 @@ type (
 
 const defaultCheckInterval = 10 * time.Second
 
-// NewWorker returns new configured Worker
+// NewWorker returns new configured Worker.
 func NewWorker(client Pinger, opts ...WorkerOption) *Worker {
 	options := &workerOptions{
 		interval:     defaultCheckInterval,
@@ -40,31 +40,31 @@ func NewWorker(client Pinger, opts ...WorkerOption) *Worker {
 	}
 }
 
-// WithInterval is configure ping interval
+// WithInterval is configure ping interval.
 func WithInterval(t time.Duration) WorkerOption {
 	return func(w *workerOptions) {
 		w.interval = t
 	}
 }
 
-// WithErrorHandler is configure error handling for Pinger.PingContext
+// WithErrorHandler is configure error handling for Pinger.PingContext.
 func WithErrorHandler(handler func(error)) WorkerOption {
 	return func(w *workerOptions) {
 		w.errorHandler = handler
 	}
 }
 
-// Worker for pinger
+// Worker for pinger.
 type Worker struct {
 	client       Pinger
 	interval     time.Duration
 	errorHandler errorHandler
 
-	ctx  context.Context
+	ctx  context.Context //nolint:containedctx
 	stop context.CancelFunc
 }
 
-// Run pinger worker
+// Run pinger worker.
 func (d *Worker) Run(ctx context.Context) error {
 	d.ctx, d.stop = context.WithCancel(ctx)
 
@@ -84,7 +84,7 @@ func (d *Worker) Run(ctx context.Context) error {
 	}
 }
 
-// Stop pinger worker
+// Stop pinger worker.
 func (d *Worker) Stop() {
 	if d.stop != nil {
 		d.stop()
